@@ -1,9 +1,9 @@
-import MyDataTable from "./classes/MyDataTable.ts";
 import "./imports.ts";
 import "./login.ts";
 import * as bootstrap from "bootstrap";
 import { addressSchema, userSchema, type AddressFormData } from "./types.ts";
 import axios from "axios";
+import MyDataTable from "./classes/MyDataTable.ts";
 import { MyForm } from "./classes/MyForm.ts";
 
 /*
@@ -17,7 +17,8 @@ import { MyForm } from "./classes/MyForm.ts";
 	Datatable kullan ajax ile verileri işle post et.
 */
 
-axios.defaults.baseURL = "http://localhost/ci3/index.php/api";
+const apiUrl = import.meta.env.API_URL;
+axios.defaults.baseURL = apiUrl || "http://localhost/ci3/index.php/api";
 
 // MAIN DATATABLE
 const tableModal = new bootstrap.Modal(document.getElementById("table-modal") as HTMLElement);
@@ -197,32 +198,6 @@ function openUserEditModal(data: any) {
 	};
 	tableModal.show();
 }
-
-/*
-tableModalSubmit.addEventListener("click", async function () {
-	try {
-		const data = mdt.table.row(mdt.selectedRowIndex as number).data();
-		console.log(data);
-		const user = await userSchema.validate(data, { strict: true, abortEarly: false });
-		console.log(user);
-		if (mdt.selectedRowIndex === -1) {
-			axios.post("/users", user).then(() => {
-				mdt.addNewRow(user);
-				tableModal.hide();
-			});
-			return;
-		}
-		axios.put(`/users/${mdt.table.row(mdt.selectedRowIndex as number).data().id}`, user).then((response) => {
-			console.log(response);
-			mdt.changeSelectedRow(user);
-			tableModal.hide();
-		});
-	} catch (err) {
-		console.log(err);
-	}
-});
-
-*/
 
 addressModalAdd.addEventListener("click", function () {
 	const data: AddressFormData = {

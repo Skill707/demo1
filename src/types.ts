@@ -33,4 +33,3 @@ export const loginSchema = yup.object({
 export type LoginFormData = yup.InferType<typeof loginSchema>;
 
 export type endpoint = "users" | "addresses" | "admins";
-

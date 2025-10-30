@@ -2,7 +2,8 @@ import axios from "axios";
 import type { AddressFormData, endpoint, LoginFormData, UserFormData } from "../types";
 import * as yup from "yup";
 
-axios.defaults.baseURL = "http://localhost/ci3/index.php/api";
+const apiUrl = import.meta.env.API_URL;
+axios.defaults.baseURL = apiUrl || "http://localhost/ci3/index.php/api";
 
 export class MyForm {
 	dom: HTMLElement;
