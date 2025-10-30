@@ -36,7 +36,7 @@
 								<a class="nav-link" aria-disabled="true"></a>
 							</li>
 						</ul>
-						<button class="btn btn-outline-success" type="button">Logout</button>
+						<button class="btn btn-outline-success" type="button" id="login-button">Login</button>
 					</div>
 				</div>
 			</nav>
@@ -52,48 +52,7 @@
 							<h5 class="modal-title" id="table-modal-title">Editing row</h5>
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
-						<div class="modal-body">
-							<form class="row g-3 needs-validation" novalidate id="table-modal-form">
-								<div class="col-md-4">
-									<label for="validationCustom01" class="form-label">Name</label>
-									<input type="text" class="form-control" id="validationCustom01" name="name" required />
-									<div class="valid-feedback">Looks good!</div>
-								</div>
-								<div class="col-md-4">
-									<label for="validationCustom02" class="form-label">Position</label>
-									<input type="text" class="form-control" id="validationCustom02" name="position" required />
-									<div class="valid-feedback">Looks good!</div>
-								</div>
-								<div class="col-md-4">
-									<label for="validationCustom03" class="form-label">Office</label>
-									<input type="text" class="form-control" id="validationCustom03" name="office" required />
-									<div class="valid-feedback">Looks good!</div>
-								</div>
-								<div class="col-md-4">
-									<label for="validationCustom04" class="form-label">Age</label>
-									<input type="number" class="form-control" id="validationCustom04" name="age" required />
-									<div class="invalid-feedback">Please provide a valid city.</div>
-								</div>
-								<div class="col-md-4">
-									<label for="validationCustom05" class="form-label">Start date</label>
-									<input type="text" class="form-control" id="validationCustom05" name="start_date" required />
-									<div class="invalid-feedback">Please provide a valid city.</div>
-								</div>
-								<div class="col-md-4">
-									<label for="validationCustom06" class="form-label">Salary</label>
-									<input type="number" class="form-control" id="validationCustom06" name="salary" required />
-									<div class="invalid-feedback">Please provide a valid Salary.</div>
-								</div>
-								<div class="col-md-12">
-									<label class="form-label text-danger" id="table-modal-errors"></label>
-								</div>
-							</form>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" >Close</button>
-							<button type="button" class="btn btn-danger" id="table-modal-delete">Delete</button>
-							<button type="button" class="btn btn-primary" id="table-modal-submit" disabled></button>
-						</div>
+						<div class="modal-body" id="table-modal-body"></div>
 					</div>
 				</div>
 			</div>
@@ -105,42 +64,10 @@
 							<h5 class="modal-title" id="address-modal-title">Addresses</h5>
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
-						<div class="modal-body">
-							<form class="row g-3 needs-validation" novalidate id="address-modal-form">
-								<div class="col-md-4">
-									<label class="form-label">Country</label>
-									<input type="text" class="form-control" name="country" required />
-									<div class="valid-feedback">Looks good!</div>
-								</div>
-								<div class="col-md-4">
-									<label class="form-label">City</label>
-									<input type="text" class="form-control" name="city" required />
-									<div class="valid-feedback">Looks good!</div>
-								</div>
-								<div class="col-md-4">
-									<label class="form-label">Street</label>
-									<input type="text" class="form-control" name="street" required />
-									<div class="valid-feedback">Looks good!</div>
-								</div>
-								<div class="col-md-4">
-									<label class="form-label">Postal_code</label>
-									<input type="number" class="form-control" name="postal_code" required />
-									<div class="invalid-feedback">Please provide a valid city.</div>
-								</div>
-								<div class="col-md-4">
-									<label class="form-label">is_primary</label>
-									<input type="text" class="form-control" name="is_primary" required />
-									<div class="invalid-feedback">Please provide a valid city.</div>
-								</div>
-								<div class="col-md-12">
-									<label class="form-label text-danger" id="address-modal-errors"></label>
-								</div>
-							</form>
-						</div>
+						<div class="modal-body" id="address-modal-body"></div>
 						<div class="modal-footer">
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-							<button type="button" class="btn btn-danger" id="address-modal-delete">Delete</button>
-							<button type="button" class="btn btn-primary" id="address-modal-submit" disabled>Save</button>
+							<button type="button" class="btn btn-success" id="address-modal-add">Add address</button>
 						</div>
 					</div>
 				</div>
@@ -150,40 +77,10 @@
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
-							<h5 class="modal-title">Modal title</h5>
+							<h5 class="modal-title" id="login-modal-title">Login</h5>
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
-						<div class="modal-body">
-							<form>
-								<div class="mb-3">
-									<label for="exampleInputEmail1" class="form-label">Email address</label>
-									<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
-									<div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-								</div>
-								<div class="mb-3">
-									<label for="exampleInputPassword1" class="form-label">Password</label>
-									<input type="password" class="form-control" id="exampleInputPassword1" />
-								</div>
-								<div class="mb-3 form-check">
-									<input type="checkbox" class="form-check-input" id="exampleCheck1" />
-									<label class="form-check-label" for="exampleCheck1">Check me out</label>
-								</div>
-								<button type="submit" class="btn btn-primary">Submit</button>
-
-								<div class="form-floating mb-3">
-									<input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" />
-									<label for="floatingInput">Email address</label>
-								</div>
-								<div class="form-floating">
-									<input type="password" class="form-control" id="floatingPassword" placeholder="Password" />
-									<label for="floatingPassword">Password</label>
-								</div>
-							</form>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-							<button type="button" class="btn btn-primary">Save changes</button>
-						</div>
+						<div class="modal-body" id="login-modal-body"></div>
 					</div>
 				</div>
 			</div>

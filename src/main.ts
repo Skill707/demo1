@@ -2,10 +2,9 @@ import MyDataTable from "./classes/MyDataTable.ts";
 import "./imports.ts";
 import "./login.ts";
 import * as bootstrap from "bootstrap";
-import { getFormData, setFormData } from "./helpers.ts";
-import { userSchema } from "./types.ts";
-import * as yup from "yup";
+import { addressSchema, userSchema, type AddressFormData } from "./types.ts";
 import axios from "axios";
+import { MyForm } from "./classes/MyForm.ts";
 
 /*
 	Datable search,order,pagination, export,import buttons
@@ -18,50 +17,59 @@ import axios from "axios";
 	Datatable kullan ajax ile verileri işle post et.
 */
 
+axios.defaults.baseURL = "http://localhost/ci3/index.php/api";
+
 // MAIN DATATABLE
 const tableModal = new bootstrap.Modal(document.getElementById("table-modal") as HTMLElement);
-const tableModalSubmit = document.getElementById("table-modal-submit") as HTMLElement;
-const tableForm = document.getElementById("table-modal-form") as HTMLFormElement;
-const tableModalErrors = document.getElementById("table-modal-errors") as HTMLElement;
-const tableModalDelete = document.getElementById("table-modal-delete") as HTMLElement;
+const tableModalBody = document.getElementById("table-modal-body") as HTMLBodyElement;
 const tableModalTitle = document.getElementById("table-modal-title") as HTMLElement;
 
-const addressModal = new bootstrap.Modal(document.getElementById("address-modal") as HTMLElement);
-const addressModalSubmit = document.getElementById("address-modal-submit") as HTMLElement;
-const addressForm = document.getElementById("address-modal-form") as HTMLFormElement;
-const addressModalErrors = document.getElementById("address-modal-errors") as HTMLElement;
-const addressModalDelete = document.getElementById("address-modal-delete") as HTMLElement;
-const addressModalTitle = document.getElementById("address-modal-title") as HTMLElement;
+const userFormFields = {
+	name: "Name",
+	position: "Position",
+	office: "Office",
+	age: "Age",
+	start_date: "Start date",
+	salary: "Salary",
+};
 
-function addressBtn(index?: number) {
+const addressModal = new bootstrap.Modal(document.getElementById("address-modal") as HTMLElement);
+const addressModalAdd = document.getElementById("address-modal-add") as HTMLElement;
+const addressModalBody = document.getElementById("address-modal-body") as HTMLBodyElement;
+const addressModalTitle = document.getElementById("address-modal-title") as HTMLElement;
+let addressModalUserId: number = -1;
+
+const addressFormFields = {
+	street: "Street",
+	city: "City",
+	country: "Country",
+	is_primary: "Is primary",
+	postal_code: "Postal code",
+};
+
+function addressBtn(user_id: number, user_name: string) {
 	const address = document.createElement("button");
 	address.classList.value = "btn btn-outline ms-2";
-	address.innerText = "Edit address";
+	address.innerText = "Edit addresses";
 
 	address.addEventListener("click", () => {
-		console.log("address button clicked", index);
-		axios.get("/addresses").then((response) => {
-			console.log(response.data);
-			addressForm.reset();
-			addressForm.classList.remove("was-validated");
-			addressModalDelete.style.display = "none";
-			addressModalErrors.innerHTML = "";
+		axios.get("/addresses/user/" + user_id).then((response) => {
+			addressModalUserId = user_id;
+			addressModalBody.innerHTML = "";
+			addressModalTitle.innerText = "Addresses of: " + user_name;
+			const addresses: AddressFormData[] = response.data;
+			addresses.forEach((addres) => {
+				new MyForm(addressModalBody, addressFormFields, addres, addressSchema, "addresses", "Address id: " + addres.id);
+			});
 			addressModal.show();
 		});
 	});
 	return address;
 }
 
-addressModalSubmit.addEventListener("click", function () {});
-
-addressModalDelete.addEventListener("click", function () {});
-
-axios.defaults.baseURL = "http://localhost/ci3/index.php/api";
-
 const mdt = new MyDataTable("#users-table", {
 	ajax(data, callback, settings) {
 		axios.get("/users").then((response) => {
-			console.log(response.data);
 			callback({
 				data: response.data,
 			});
@@ -75,6 +83,7 @@ const mdt = new MyDataTable("#users-table", {
 	select: true,
 
 	columns: [
+		{ title: "ID", data: "id" },
 		{ title: "Name", data: "name" },
 		{ title: "Position", data: "position" },
 		{ title: "Office", data: "office" },
@@ -86,7 +95,7 @@ const mdt = new MyDataTable("#users-table", {
 			data: null,
 			orderable: false,
 			searchable: false,
-			render: (row) => addressBtn(row),
+			render: (row) => addressBtn(row.id, row.name),
 		},
 	],
 
@@ -124,13 +133,31 @@ const mdt = new MyDataTable("#users-table", {
 				{
 					text: "Add new row",
 					action: function (e, dt, node, config) {
-						tableForm.reset();
-						tableForm.classList.remove("was-validated");
 						tableModalTitle.innerText = "Add new User";
 						mdt.selectedRowIndex = -1;
-						tableModalDelete.style.display = "none";
-						tableModalSubmit.innerText = "Add User";
-						tableModalErrors.innerHTML = "";
+						tableModalBody.innerHTML = "";
+						const addUserForm = new MyForm(
+							tableModalBody,
+							userFormFields,
+							{
+								id: "",
+								name: "",
+								position: "",
+								office: "",
+								age: "",
+								start_date: "",
+								salary: "",
+							},
+							userSchema,
+							"users",
+							"",
+							true
+						);
+						addUserForm.onAdd = (val: any) => {
+							console.log(val);
+							mdt.addNewRow(val);
+							tableModal.hide();
+						};
 						tableModal.show();
 					},
 				},
@@ -140,16 +167,9 @@ const mdt = new MyDataTable("#users-table", {
 						const selectedRows = mdt.table.rows({ selected: true });
 						const row = selectedRows.count() === 1 ? selectedRows[0] : null;
 						if (!row) return;
-						tableModalTitle.innerText = "Edit user data";
-						tableModalDelete.style.display = "none";
-						tableForm.reset();
 						const data = mdt.table.row(row).data();
-						setFormData(tableForm, data);
 						mdt.selectedRowIndex = row[0];
-						tableModalDelete.style.display = "inline-block";
-						tableModalSubmit.innerText = "Save changes";
-						await validateForm();
-						tableModal.show();
+						openUserEditModal(data);
 					},
 				},
 			],
@@ -157,52 +177,35 @@ const mdt = new MyDataTable("#users-table", {
 	},
 });
 
-mdt.addNewRow({
-	name: "Lachin",
-	position: "Developer",
-	office: "Baku",
-	age: 35,
-	start_date: "2020-01-01",
-	salary: 3000,
-});
-
-async function validateForm() {
-	try {
-		const user = await userSchema.validate(getFormData(tableForm), { strict: true, abortEarly: false });
-		tableForm.classList.add("was-validated");
-		tableModalErrors.innerHTML = "";
-		tableModalSubmit.removeAttribute("disabled");
-	} catch (err) {
-		if (err instanceof yup.ValidationError) {
-			tableForm.classList.remove("was-validated");
-			tableModalErrors.innerHTML = (err as yup.ValidationError).errors.join("<br>");
-			tableModalSubmit.setAttribute("disabled", "true");
-		}
-	}
-}
-
 mdt.table.on("dblclick", "tbody tr", async function () {
 	const data = mdt.table.row(this).data();
-	tableForm.reset();
-	setFormData(tableForm, data);
 	mdt.selectedRowIndex = mdt.table.row(this).index();
-	tableModalDelete.style.display = "inline-block";
+	openUserEditModal(data);
+});
+
+function openUserEditModal(data: any) {
+	tableModalBody.innerHTML = "";
 	tableModalTitle.innerText = "Edit user data";
-	tableModalSubmit.innerText = "Save changes";
-	await validateForm();
+	const editUserForm = new MyForm(tableModalBody, userFormFields, data, userSchema, "users");
+	editUserForm.onChange = (val: any) => {
+		mdt.changeSelectedRow(val);
+		tableModal.hide();
+	};
+	editUserForm.onDelete = () => {
+		mdt.deleteSelectedRow();
+		tableModal.hide();
+	};
 	tableModal.show();
-});
+}
 
-tableForm.addEventListener("input", async () => {
-	await validateForm();
-});
-
+/*
 tableModalSubmit.addEventListener("click", async function () {
 	try {
-		const user = await userSchema.validate(getFormData(tableForm), { strict: true, abortEarly: false });
+		const data = mdt.table.row(mdt.selectedRowIndex as number).data();
+		console.log(data);
+		const user = await userSchema.validate(data, { strict: true, abortEarly: false });
+		console.log(user);
 		if (mdt.selectedRowIndex === -1) {
-			console.log(user);
-
 			axios.post("/users", user).then(() => {
 				mdt.addNewRow(user);
 				tableModal.hide();
@@ -219,9 +222,23 @@ tableModalSubmit.addEventListener("click", async function () {
 	}
 });
 
-tableModalDelete.addEventListener("click", function () {
-	axios.delete(`/users/${mdt.table.row(mdt.selectedRowIndex as number).data().id}`).then((response) => {
-		tableModal.hide();
-		mdt.deleteSelectedRow();
+*/
+
+addressModalAdd.addEventListener("click", function () {
+	const data: AddressFormData = {
+		id: "",
+		user_id: addressModalUserId.toString(),
+		street: "",
+		city: "",
+		country: "",
+		is_primary: "",
+		postal_code: "",
+	};
+
+	axios.post("/addresses", data).then((response) => {
+		console.log("axios post addresses", response.data);
+		data.id = response.data.id.toString();
+		console.log(data);
+		new MyForm(addressModalBody, addressFormFields, data, addressSchema, "addresses", "Address id: " + data.id);
 	});
 });
